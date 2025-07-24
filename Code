@@ -1,0 +1,32 @@
+import cv2
+import easyocr
+
+def extract_id_info(image_path):
+    # Load the image
+    img = cv2.imread("testimg.jpg")
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+
+    reader = easyocr.Reader(['en'])  # Replace 'en' with desired language code
+
+    results = reader.readtext(thresh)
+
+    id_info = {}
+    for result in results:
+        text, bbox, _, confidence = result
+        if "Name" in text:
+            id_info["Name"] = text
+
+    return id_info
+
+image_path = "path/to/your/id_card_image.jpg"
+extracted_info = extract_id_info(image_path)
+
+if extracted_info:
+    print("Extracted Information:")
+    for key, value in extracted_info.items():
+        print(f"{key}: {value}")
+else:
+    print("Failed to extract information from ID card.")
